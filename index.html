@@ -126,6 +126,9 @@
           <div class="game-grid" id="gameGrid"></div>
 
           <div class="picker-actions">
+            <button class="btn btn-ghost btn-sm" id="pickerBackfillBtn" type="button">
+              <svg><use href="#i-clock"/></svg><span>补录订单</span>
+            </button>
             <button class="btn btn-ghost btn-sm" id="pickerManageBtn" type="button">
               <svg><use href="#i-edit"/></svg><span>游戏库管理</span>
             </button>
@@ -521,6 +524,53 @@
         <button id="presetUndoBtn" type="button">撤销</button>
       </div>
     </div>
+  </dialog>
+
+  <!-- ================= 补录订单弹窗 ================= -->
+  <dialog class="dialog dialog-backfill" id="backfillDialog" aria-labelledby="backfillTitle">
+    <form class="dialog-body backfill-form" id="backfillForm" novalidate>
+      <button class="dialog-close" id="backfillClose" type="button" aria-label="关闭"><svg><use href="#i-x"/></svg></button>
+      <div class="dialog-icon"><svg><use href="#i-clock"/></svg></div>
+      <span class="eyebrow">BACKFILL</span>
+      <h2 id="backfillTitle">补录进行中订单</h2>
+      <p class="dialog-sub">忘记开单时用。填好开始时间，会从那个时间开始补算并继续计时。</p>
+
+      <div class="edit-grid">
+        <label class="field">
+          <span class="field-label">游戏</span>
+          <span class="input-shell">
+            <svg class="input-icon"><use href="#i-gamepad"/></svg>
+            <input id="backfillGame" type="text" maxlength="40" placeholder="例如：英雄联盟" autocomplete="off">
+          </span>
+        </label>
+        <label class="field">
+          <span class="field-label">每小时单价</span>
+          <span class="input-shell">
+            <span class="input-prefix">¥</span>
+            <input id="backfillRate" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="40" autocomplete="off">
+            <span class="input-suffix">/小时</span>
+          </span>
+        </label>
+      </div>
+
+      <label class="field backfill-time">
+        <span class="field-label">开始时间</span>
+        <span class="input-shell">
+          <svg class="input-icon"><use href="#i-calendar"/></svg>
+          <input id="backfillStart" type="datetime-local">
+        </span>
+      </label>
+      <span class="field-error" id="backfillError"></span>
+
+      <p class="backfill-note">补录后会立刻按开始时间计算有效时长；结束结算时还可以手动修改时长。</p>
+
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" id="backfillCancel" type="button">取消</button>
+        <button class="btn btn-primary" id="backfillSubmit" type="submit">
+          <svg><use href="#i-play"/></svg><span>开始计时</span>
+        </button>
+      </div>
+    </form>
   </dialog>
 
   <!-- ================= 数据与备份弹窗 ================= -->
