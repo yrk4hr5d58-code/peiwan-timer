@@ -5,18 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0d070c">
   <meta name="color-scheme" content="dark">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="陪玩计时">
-  <meta name="application-name" content="陪玩计时">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="format-detection" content="telephone=no">
   <title>陪玩计时 · 接单小账本</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
   <svg class="svg-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -231,20 +222,6 @@
           <button class="bill-mode-tab" type="button" data-bill-mode="month" role="tab" aria-selected="false">月账单</button>
           <button class="bill-mode-tab" type="button" data-bill-mode="year" role="tab" aria-selected="false">年账单</button>
         </div>
-
-        <section class="card week-card" aria-labelledby="weekTitle">
-          <div class="week-head">
-            <div>
-              <span class="eyebrow" id="chartEyebrow">LAST 7 DAYS</span>
-              <h2 id="weekTitle">近 7 天收入</h2>
-            </div>
-            <div class="week-total">
-              <span>合计</span>
-              <strong id="weekTotal">¥0.00</strong>
-            </div>
-          </div>
-          <div class="week-chart" id="weekChart"></div>
-        </section>
 
         <div class="bill-grid">
           <section class="card bill-card" aria-labelledby="billTitle">
@@ -600,17 +577,7 @@
     <button class="toast-close" id="toastClose" type="button" aria-label="关闭提示"><svg><use href="#i-x"/></svg></button>
   </div>
 
-  <div class="pwa-tip" id="pwaTip" hidden>
-    <svg><use href="#i-sparkle"/></svg>
-    <div>
-      <b>安装到 iPhone 主屏幕</b>
-      <span>点 Safari 底部「分享」→「添加到主屏幕」，以后像 App 一样打开。</span>
-    </div>
-    <button class="pwa-tip-close" id="pwaTipClose" type="button" aria-label="关闭安装提示"><svg><use href="#i-x"/></svg></button>
-  </div>
-
   <script src="core.js"></script>
   <script src="app.js"></script>
-  <script src="pwa.js"></script>
 </body>
 </html>
