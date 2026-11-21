@@ -1,5 +1,5 @@
 /* 陪玩计时 PWA：首次打开后缓存，之后可离线使用。 */
-const CACHE = 'peiwan-mobile-v4';
+const CACHE = 'peiwan-mobile-v5';
 const ASSETS = [
   './',
   './index.html',
