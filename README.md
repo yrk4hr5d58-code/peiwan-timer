@@ -2,6 +2,14 @@
 
 这是一个 **PWA 网页应用**，不是 Windows exe。iPhone 不能直接运行桌面版 `陪玩计时.exe`，但可以把这一版装到主屏幕，像 App 一样打开。
 
+## 当前在线地址
+
+**https://yrk4hr5d58-code.github.io/peiwan-timer/**
+
+![手机访问二维码](<qr.png>)
+
+用 iPhone Safari 打开，点「分享」→「添加到主屏幕」即可。
+
 ## 能做什么
 
 - 选择游戏、计时、暂停、结束结算
