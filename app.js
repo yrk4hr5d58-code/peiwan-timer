@@ -35,14 +35,14 @@
   function cacheElements() {
     [
       'headerDate', 'dataBtn', 'footerBackupBtn', 'storageBanner', 'storageBannerText',
-      'statusPill', 'statusText', 'sessionHint', 'sessionCard',
+      'statusPill', 'statusText', 'sessionCard',
       'timerPicker', 'timerSession', 'gameGrid', 'pickerManageBtn', 'pickerAddBtn',
       'backToPicker', 'sessionAvatar', 'sessionGameName', 'sessionGameRate',
       'gameInput', 'rateInput', 'noteInput', 'gameError', 'rateError',
       'presetDialog', 'presetClose', 'presetForm', 'presetName', 'presetRate', 'presetSubmit',
       'presetCancelEdit', 'presetFormHint', 'presetCount', 'presetList',
       'presetUndo', 'presetUndoText', 'presetUndoBtn',
-      'timerDisplay', 'minuteFill', 'liveAmount', 'liveRate', 'billingHint',
+      'timerDisplay', 'minuteFill', 'liveAmount', 'liveRate',
       'startBtn', 'pauseBtn', 'pauseBtnText', 'endBtn', 'metaStart', 'metaPause', 'metaRate',
       'view-timer', 'view-bills', 'prevPeriod', 'nextPeriod', 'dateBtn', 'dateLabel', 'datePicker',
       'monthPicker', 'yearSelect', 'todayBtn',
@@ -362,18 +362,6 @@
 
     el.statusPill.className = 'status-pill ' + (running ? 'is-running' : paused ? 'is-paused' : 'is-idle');
     el.statusText.textContent = running ? '计时中' : paused ? '已暂停' : '待开始';
-    el.sessionHint.hidden = !active;
-
-    if (running) {
-      el.sessionHint.textContent = '计时中 · 暂停时间不计费';
-      el.billingHint.textContent = '按整分钟计费 · 单笔最低 1 分钟 · 暂停时间不计入';
-    } else if (paused) {
-      el.sessionHint.textContent = '已暂停 · 当前时间不会计入账单';
-      el.billingHint.textContent = '暂停中 · 点击「继续计时」恢复，暂停时间不计费';
-    } else {
-      el.sessionHint.textContent = '点击开始接单';
-      el.billingHint.textContent = '按整分钟计费 · 单笔最低 1 分钟 · 暂停时间不计入';
-    }
 
     var game = active ? active.game : (el.gameInput.value || '');
     var currentRate = active ? active.rate : parseFloat(el.rateInput.value);
