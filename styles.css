@@ -509,11 +509,6 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-variant-numeric: tabular-nums;
 }
 .session-game-head .status-pill { margin-left: auto; align-self: flex-start; }
-.session-focus .session-hint {
-  margin-top: 7px;
-  padding-left: 48px;
-  text-align: left;
-}
 .session-note {
   display: flex;
   align-items: center;
@@ -615,12 +610,6 @@ ul { margin: 0; padding: 0; list-style: none; }
   background: rgba(255, 189, 92, 0.08);
 }
 .status-pill.is-paused i { background: var(--amber); }
-.session-hint {
-  color: var(--muted-2);
-  font-size: 12px;
-  text-align: right;
-  line-height: 1.4;
-}
 
 .order-form {
   position: relative;
@@ -862,7 +851,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator { opacity: 0.4; 
   font-variant-numeric: tabular-nums;
 }
 .live-rate { color: #826d79; font-size: 11px; }
-.billing-hint { margin-top: 7px; color: #75616d; font-size: 11px; letter-spacing: 0.01em; }
 
 .session-actions {
   display: flex;
@@ -2031,7 +2019,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator { opacity: 0.4; 
   .session-game-head .game-avatar { width: 42px; height: 42px; border-radius: 12px; }
   .session-game-info h2 { font-size: 20px; }
   .session-game-head .status-pill { height: 26px; padding: 0 9px; }
-  .session-focus .session-hint { padding-left: 0; }
   .timer-grid .side-stack, .bill-grid .side-stack { grid-template-columns: 1fr; }
   .session-card { padding: 22px 20px 0; }
   .timer-stage { margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; }
@@ -2119,7 +2106,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator { opacity: 0.4; 
   .timer { font-size: clamp(3.4rem, 7vw, 4.6rem); }
   .timer-line { margin-top: 2px; }
   .live-estimate { margin-top: 8px; }
-  .billing-hint { margin-top: 4px; }
   .session-actions { padding: 13px 0; }
   .btn-start { min-height: 48px; }
   .session-meta { padding-top: 9px; padding-bottom: 10px; }
