@@ -36,12 +36,14 @@
     [
       'headerDate', 'dataBtn', 'footerBackupBtn', 'storageBanner', 'storageBannerText',
       'statusPill', 'statusText', 'sessionCard',
-      'timerPicker', 'timerSession', 'gameGrid', 'pickerManageBtn', 'pickerAddBtn',
+      'timerPicker', 'timerSession', 'gameGrid', 'pickerBackfillBtn', 'pickerManageBtn', 'pickerAddBtn',
       'backToPicker', 'sessionAvatar', 'sessionGameName', 'sessionGameRate',
       'gameInput', 'rateInput', 'noteInput', 'gameError', 'rateError',
       'presetDialog', 'presetClose', 'presetForm', 'presetName', 'presetRate', 'presetSubmit',
       'presetCancelEdit', 'presetFormHint', 'presetCount', 'presetList',
       'presetUndo', 'presetUndoText', 'presetUndoBtn',
+      'backfillDialog', 'backfillForm', 'backfillGame', 'backfillRate', 'backfillStart',
+      'backfillError', 'backfillClose', 'backfillCancel',
       'timerDisplay', 'minuteFill', 'liveAmount', 'liveRate',
       'startBtn', 'pauseBtn', 'pauseBtnText', 'endBtn', 'metaStart', 'metaPause', 'metaRate',
       'view-timer', 'view-bills', 'prevPeriod', 'nextPeriod', 'dateBtn', 'dateLabel', 'datePicker',
@@ -504,6 +506,114 @@
       el.presetName.focus();
       el.presetName.select();
     }, 30);
+  }
+
+  function pad2Local(value) {
+    return value < 10 ? '0' + value : String(value);
+  }
+
+  function localDateTimeValue(date) {
+    return date.getFullYear() + '-' + pad2Local(date.getMonth() + 1) + '-' +
+      pad2Local(date.getDate()) + 'T' + pad2Local(date.getHours()) + ':' +
+      pad2Local(date.getMinutes());
+  }
+
+  function clearBackfillErrors() {
+    el.backfillError.textContent = '';
+    [el.backfillGame, el.backfillRate, el.backfillStart].forEach(function (input) {
+      var shell = input.closest('.input-shell');
+      if (shell) shell.classList.remove('is-invalid');
+    });
+  }
+
+  function backfillError(message, input) {
+    el.backfillError.textContent = message;
+    if (input) {
+      var shell = input.closest('.input-shell');
+      if (shell) shell.classList.add('is-invalid');
+      input.focus();
+    }
+  }
+
+  function openBackfillDialog() {
+    if (state.active) {
+      showToast('当前已有进行中订单，请先结算', { tone: 'warn' });
+      return;
+    }
+    clearBackfillErrors();
+    var game = C.cleanText(el.gameInput.value, 40);
+    var rate = parseFloat(el.rateInput.value);
+    if (!game && (state.games || []).length) {
+      game = state.games[0].name;
+      rate = state.games[0].rate;
+    }
+    el.backfillGame.value = game || '';
+    el.backfillRate.value = Number.isFinite(rate) && rate > 0 ? C.formatRate(rate) : '';
+    var now = new Date();
+    el.backfillStart.value = localDateTimeValue(now);
+    el.backfillStart.max = localDateTimeValue(now);
+    openDialog(el.backfillDialog);
+    window.setTimeout(function () {
+      el.backfillGame.focus();
+      el.backfillGame.select();
+    }, 30);
+  }
+
+  function submitBackfill(event) {
+    if (event) event.preventDefault();
+    if (state.active) {
+      backfillError('当前已有进行中订单，请先结束并结算');
+      return;
+    }
+    clearBackfillErrors();
+    var game = C.cleanText(el.backfillGame.value, 40);
+    var rate = Number(el.backfillRate.value);
+    var startDate = el.backfillStart.value ? new Date(el.backfillStart.value) : null;
+    var startMs = startDate && !isNaN(startDate.getTime()) ? startDate.getTime() : NaN;
+
+    if (!game) {
+      backfillError('请填写游戏名称', el.backfillGame);
+      return;
+    }
+    if (!Number.isFinite(rate) || rate <= 0) {
+      backfillError('请填写大于 0 的单价', el.backfillRate);
+      return;
+    }
+    if (!Number.isFinite(startMs)) {
+      backfillError('请选择开始时间', el.backfillStart);
+      return;
+    }
+    if (startMs > Date.now()) {
+      backfillError('开始时间不能晚于现在', el.backfillStart);
+      return;
+    }
+
+    var now = Date.now();
+    state.active = {
+      id: C.uid('active'),
+      game: game,
+      rate: C.round2(rate),
+      note: '',
+      startedAt: startMs,
+      accumulatedMs: 0,
+      runningSince: startMs,
+      pauseTotalMs: 0,
+      pausedSince: 0,
+      createdAt: now
+    };
+    C.upsertGamePreset(state, game, C.round2(rate), now);
+    el.gameInput.value = game;
+    el.rateInput.value = C.formatRate(C.round2(rate));
+    el.noteInput.value = '';
+    timerScreen = 'session';
+    persist();
+    closeDialog(el.backfillDialog);
+    renderAll();
+    switchView('timer', true);
+    showToast('已补录「' + game + '」 · 从 ' + C.formatTimeHM(startMs) + ' 开始计时', {
+      tone: 'success',
+      duration: 3200
+    });
   }
 
   function renderPresetList() {
@@ -1859,6 +1969,7 @@
 
     el.pickerAddBtn.addEventListener('click', function () { openPresetDialog(false); });
     el.pickerManageBtn.addEventListener('click', function () { openPresetDialog(false); });
+    el.pickerBackfillBtn.addEventListener('click', openBackfillDialog);
     el.backToPicker.addEventListener('click', function () {
       timerScreen = 'picker';
       renderTimerScreen();
@@ -2034,6 +2145,15 @@
       hidePresetUndo();
       resetPresetForm(true);
     });
+
+    // 补录订单
+    el.backfillClose.addEventListener('click', function () { closeDialog(el.backfillDialog); });
+    el.backfillCancel.addEventListener('click', function () { closeDialog(el.backfillDialog); });
+    el.backfillDialog.addEventListener('click', function (event) {
+      if (event.target === el.backfillDialog) closeDialog(el.backfillDialog);
+    });
+    el.backfillForm.addEventListener('submit', submitBackfill);
+    el.backfillDialog.addEventListener('close', clearBackfillErrors);
 
     // 数据与备份
     el.dataBtn.addEventListener('click', openDataDialog);
