@@ -46,7 +46,7 @@
       'startBtn', 'pauseBtn', 'pauseBtnText', 'endBtn', 'metaStart', 'metaPause', 'metaRate',
       'view-timer', 'view-bills', 'prevPeriod', 'nextPeriod', 'dateBtn', 'dateLabel', 'datePicker',
       'monthPicker', 'yearSelect', 'todayBtn',
-      'weekTotal', 'weekTitle', 'chartEyebrow', 'weekChart', 'billTitle', 'billSubtitle',
+      'billTitle', 'billSubtitle',
       'billTotal', 'billGross', 'billCommission', 'billDuration', 'billCount', 'billDays',
       'settleBtn', 'settleText', 'periodStatus', 'billList', 'copyBillBtn', 'exportDayBtn', 'exportBtnText',
       'monthLabel', 'monthTitle', 'sideEyebrow', 'monthTotal', 'monthMeta', 'monthDeduction', 'monthSettled', 'monthUnsettled', 'topGames',
@@ -100,21 +100,6 @@
 
   function rateText(rate) {
     return Number(rate) > 0 ? '¥' + C.formatMoneyPlain(rate) + '/小时' : '未设置单价';
-  }
-
-  function shortMoney(value) {
-    var n = C.round2(value);
-    if (n >= 10000) return '¥' + (n / 10000).toFixed(n >= 100000 ? 0 : 1).replace(/\.0$/, '') + '万';
-    if (n >= 1000) return '¥' + (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
-    return '¥' + Math.round(n);
-  }
-
-  function lastNDays(endDay, count) {
-    var days = [];
-    for (var i = count - 1; i >= 0; i--) {
-      days.push(C.addDays(endDay, -i));
-    }
-    return days;
   }
 
   function uniqueOrderDays(orders) {
@@ -751,11 +736,8 @@
   function billRow(order) {
     var note = order.note ? ' · <em>' + escapeHtml(order.note) + '</em>' : '';
     var commissionRate = C.orderCommissionRate(order);
-    var gross = C.orderGross(order);
-    var commission = C.orderCommission(order);
     var commissionText = commissionRate > 0
-      ? ' · 原价 ¥' + C.formatMoneyPlain(gross) + ' · 抽成 ¥' +
-        C.formatMoneyPlain(commission) + ' (' + C.formatRate(commissionRate) + '%)'
+      ? ' · 抽成 ' + C.formatRate(commissionRate) + '%'
       : '';
     return '<div class="bill-row">' +
       avatarHtml(order.game) +
@@ -866,103 +848,6 @@
     }).join('');
   }
 
-  function renderChart() {
-    var items = [];
-    var chartClass = '';
-    var chartKind = 'day';
-    var title;
-    var eyebrow;
-    var total = 0;
-
-    if (billMode === 'day') {
-      var days = lastNDays(selectedDay, 7);
-      items = days.map(function (day) {
-        var summary = C.summarize(C.ordersOfDay(state.orders, day));
-        total += summary.amount;
-        return {
-          key: day,
-          amount: summary.amount,
-          label: day === C.todayKey() ? '今天' : C.weekdayCN(day, true),
-          sub: day.slice(5).replace('-', '/'),
-          selected: day === selectedDay,
-          today: day === C.todayKey(),
-          aria: C.formatDateCN(day, true)
-        };
-      });
-      title = '近 7 天收入';
-      eyebrow = 'LAST 7 DAYS';
-    } else if (billMode === 'month') {
-      var month = C.monthKey(selectedDay);
-      var parts = month.split('-');
-      var year = Number(parts[0]);
-      var monthIndex = Number(parts[1]);
-      var dayCount = new Date(year, monthIndex, 0).getDate();
-      for (var d = 1; d <= dayCount; d++) {
-        var key = month + '-' + C.pad2(d);
-        var daySummary = C.summarize(C.ordersOfDay(state.orders, key));
-        total += daySummary.amount;
-        items.push({
-          key: key,
-          amount: daySummary.amount,
-          label: String(d),
-          sub: '',
-          selected: key === selectedDay,
-          today: key === C.todayKey(),
-          aria: C.formatDateCN(key, true)
-        });
-      }
-      chartClass = 'is-month';
-      title = C.formatMonthCN(month) + ' 每日收入';
-      eyebrow = 'MONTHLY';
-    } else {
-      var chartYear = C.yearKey(selectedDay);
-      for (var m = 1; m <= 12; m++) {
-        var monthKey = chartYear + '-' + C.pad2(m);
-        var monthSummary = C.summarize(C.ordersOfMonth(state.orders, monthKey));
-        total += monthSummary.amount;
-        items.push({
-          key: monthKey,
-          amount: monthSummary.amount,
-          label: m + '月',
-          sub: '',
-          selected: monthKey === C.monthKey(selectedDay),
-          today: monthKey === C.monthKey(C.todayKey()),
-          aria: C.formatMonthCN(monthKey)
-        });
-      }
-      chartClass = 'is-year';
-      chartKind = 'month';
-      title = C.formatYearCN(chartYear) + ' 月度收入';
-      eyebrow = 'YEARLY';
-    }
-
-    var max = items.reduce(function (value, item) { return Math.max(value, item.amount); }, 0);
-    el.weekTitle.textContent = title;
-    el.chartEyebrow.textContent = eyebrow;
-    el.weekTotal.textContent = C.formatMoney(total);
-    el.weekChart.className = 'week-chart' + (chartClass ? ' ' + chartClass : '');
-    el.weekChart.style.gridTemplateColumns = 'repeat(' + items.length + ', minmax(0, 1fr))';
-
-    el.weekChart.innerHTML = items.map(function (item) {
-      var isZero = item.amount <= 0;
-      var height = isZero ? 0 : Math.max(8, Math.round(item.amount / Math.max(max, 0.01) * 100));
-      var label = item.selected || (!isZero && chartKind === 'day') ? shortMoney(item.amount) : '';
-      if (billMode !== 'day' && !isZero && !item.selected) {
-        label = shortMoney(item.amount);
-      }
-      return '<button class="chart-col' + (item.selected ? ' is-selected' : '') +
-        (isZero ? ' is-zero' : '') + '" type="button" data-chart-kind="' + chartKind +
-        '" data-chart-key="' + item.key + '" aria-label="' +
-        escapeHtml(item.aria + ' 收入 ' + C.formatMoney(item.amount)) + '"' +
-        (item.selected ? ' aria-current="date"' : '') + '>' +
-        '<span class="chart-value">' + label + '</span>' +
-        '<span class="chart-track"><i class="chart-bar" style="height:' + height + '%"></i></span>' +
-        '<span class="chart-weekday">' + escapeHtml(item.label) + '</span>' +
-        '<span class="chart-date">' + escapeHtml(item.sub) + '</span>' +
-        '</button>';
-    }).join('');
-  }
-
   function populateYearSelect() {
     var years = Object.create(null);
     years[Number(C.yearKey(C.todayKey()))] = true;
@@ -1064,7 +949,6 @@
     if (isDay) renderOrderList(orders);
     else renderPeriodList(groups, isMonth ? 'day' : 'month');
 
-    renderChart();
     renderSideSummary();
   }
 
@@ -2029,15 +1913,6 @@
       selectedDay = C.addYears(selectedDay, targetYear - Number(C.yearKey(selectedDay)));
       billMode = 'year';
       renderBills();
-    });
-
-    el.weekChart.addEventListener('click', function (event) {
-      var col = event.target.closest('[data-chart-key]');
-      if (!col) return;
-      var key = col.getAttribute('data-chart-key');
-      var kind = col.getAttribute('data-chart-kind');
-      if (kind === 'month') selectDay(key + '-01', 'month');
-      else selectDay(key, 'day');
     });
 
     el.settleBtn.addEventListener('click', toggleSettle);
